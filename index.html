@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Memory Testing</title>
+    <script>
+      const savedBuffers = [];
+      const largestBufferSize = 2145386496;
+      const ipcRenderer = require("electron").ipcRenderer;
+	  var mainBufferSize = 0;
+	  var resultElement;
+      window.onload = () => {
+		resultElement = document.querySelector("#result");
+        document.querySelector("#fillMemory").addEventListener("click", (e) => {
+			e.target.setAttribute("disabled", "");	
+			resultElement.innerText = "waiting...";
+			setImmediate(() => {
+				try {
+					savedBuffers.push(Buffer.alloc(largestBufferSize, 1));
+					resultElement.innerText = "ok";
+				} catch(e) {
+					resultElement.innerText = e.name+": "+e.message;
+					//console.log("error", e);
+				}
+				document.querySelector("#size").innerText = ((largestBufferSize * savedBuffers.length)/1024).toLocaleString()+" kB";
+				e.target.removeAttribute("disabled");
+			});
+        });
+        document.querySelector("#mainFillMemory").addEventListener("click", async (e) => {
+			e.target.setAttribute("disabled", "");	
+			resultElement.innerText = "waiting...";
+			const result = await ipcRenderer.invoke("mainFillMemory");
+			resultElement.innerText = result;
+			if (result === "ok") {
+				mainBufferSize += largestBufferSize;
+				document.querySelector("#mainSize").innerText = (mainBufferSize/1024).toLocaleString()+" kB";
+			}
+			e.target.removeAttribute("disabled");
+        });
+        const displayMemoryInfo = (whichID, infoObject) => {
+          let displayString = "";
+          for (const [key, value] of Object.entries(infoObject)) {
+            displayString += key+": "+value.toLocaleString()+" kB\n";
+          }
+          document.getElementById(whichID).innerText = displayString;        
+        }
+        setInterval(async () => {
+			displayMemoryInfo("memoryInfo", await process.getProcessMemoryInfo());
+			displayMemoryInfo("mainMemoryInfo", await ipcRenderer.invoke("getMainProcessMemoryInfo"));
+        }, 1500);
+        document.querySelector("#refresh").addEventListener("click", async () => {
+			savedBuffers.length = 0;
+			await ipcRenderer.invoke("clearMainProcessMemory");
+			location.reload();
+		});
+        document.querySelector("#versions").innerText = "electron: "+process.versions.electron+", abi: "+process.versions.modules+", node: "+process.versions.node+", chromium: "+process.versions.chrome;
+      };
+    </script>
+  </head>
+  <body>
+    <h3 id="versions"></h3>
+	<br>
+    <button id="fillMemory">fill renderer process RAM with 2GB</button> <button id="mainFillMemory">fill main process RAM with 2GB</button>
+    <br><br>
+    Last operation result: <span id="result"></span>
+    <br><br>
+    Total renderer process memory filled: <span id="size">0</span>
+    <br><br>
+    Total main process memory filled: <span id="mainSize">0</span>
+    <br><br>
+    <div style="display:flex;align-items:center;">
+      <span>Renderer Process Memory Info:</span>
+      <pre id="memoryInfo" style="margin:0 10px"></pre>
+    </div>
+    <br><br>
+    <div style="display:flex;align-items:center;">
+      <span>Main Process Memory Info:</span>
+      <pre id="mainMemoryInfo" style="margin:0 10px"></pre>
+    </div>
+    <br><br>
+    <button id="refresh">clear memory & refresh</button>
+    <br><br>
+  </body>
+</html>

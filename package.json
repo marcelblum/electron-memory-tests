@@ -1,0 +1,14 @@
+{
+  "name": "electron-memory-tests",
+  "version": "1.0.0",
+  "description": "A minimal Electron application",
+  "main": "main.js",
+  "scripts": {
+    "start-electron-latest": "node node_modules/electron/cli.js .",
+    "start-electron-13": "node node_modules/electron-13/cli.js ."
+  },
+  "dependencies": {
+    "electron-13": "npm:electron@^13.5.1",
+    "electron": "latest"
+  }
+}
