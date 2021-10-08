@@ -1,7 +1,12 @@
 const {app, BrowserWindow, ipcMain} = require('electron');
 //app.commandLine.appendSwitch('js-flags', '--max_old_space_size=16384');
-//app.commandLine.appendSwitch('max_old_space_size', '10192');
+//app.commandLine.appendSwitch('js-flags', '--max-old-space-size=16384');
+//app.commandLine.appendSwitch('js-flags', '--max-heap-size=16384');
+//app.commandLine.appendSwitch('js-flags', '--max_heap_size=16384');
 //require('v8').setFlagsFromString('--max-old-space-size=16384');
+//require('v8').setFlagsFromString('--max_old_space_size=16384');
+//require('v8').setFlagsFromString('--max_heap_size=16384');
+//require('v8').setFlagsFromString('--max-heap-size=16384');
 
 
 function createWindow () {
