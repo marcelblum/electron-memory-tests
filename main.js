@@ -13,16 +13,18 @@ function createWindow () {
 			contextIsolation: false
 		}
 	})
-
-	mainWindow.loadFile('index.html');
-	mainWindow.webContents.openDevTools({ mode: 'bottom' });
+	
+	if (mainWindow.loadFile) {
+		mainWindow.loadFile('index.html');
+		mainWindow.webContents.openDevTools({ mode: 'bottom' });
+	} else {
+		mainWindow.loadURL(`file://${__dirname}/index.html`);
+	}
 	
 	mainWindow.webContents.on('render-process-gone', (event, details) => console.warn("renderer crashed:", details.exitCode, details.reason));
 }
 
-app.whenReady().then(() => {
-  createWindow();
-})
+app.on('ready', createWindow);
 
 app.on('window-all-closed', function () {
   app.quit();
@@ -30,22 +32,24 @@ app.on('window-all-closed', function () {
 
 const savedBuffers = [];
 const largestBufferSize = 2145386496;
-ipcMain.handle('mainFillMemory', async (event, param) => {
-	let result = "ok";
-	try {
-    savedBuffers.push(Buffer.alloc(largestBufferSize, 1));
-  } catch(e) {
-    result = e.name+": "+e.message;
-    //console.log("error", e);
-  }
-  return result;
-});
+if (ipcMain.handle) {
+	ipcMain.handle('mainFillMemory', async (event, param) => {
+		let result = "ok";
+		try {
+		savedBuffers.push(Buffer.alloc(largestBufferSize, 1));
+	  } catch(e) {
+		result = e.name+": "+e.message;
+		//console.log("error", e);
+	  }
+	  return result;
+	});
 
-ipcMain.handle('getMainProcessMemoryInfo', async (event, param) => {
-	return await process.getProcessMemoryInfo();
-});
+	ipcMain.handle('getMainProcessMemoryInfo', async (event, param) => {
+		return await process.getProcessMemoryInfo();
+	});
 
-ipcMain.handle('clearMainProcessMemory', async (event, param) => {
-	savedBuffers.length = 0;
-	return true;
-});
+	ipcMain.handle('clearMainProcessMemory', async (event, param) => {
+		savedBuffers.length = 0;
+		return true;
+	});
+}

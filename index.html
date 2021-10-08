@@ -46,7 +46,7 @@
         }
         setInterval(async () => {
 			displayMemoryInfo("memoryInfo", await process.getProcessMemoryInfo());
-			displayMemoryInfo("mainMemoryInfo", await ipcRenderer.invoke("getMainProcessMemoryInfo"));
+			if (ipcRenderer.invoke) displayMemoryInfo("mainMemoryInfo", await ipcRenderer.invoke("getMainProcessMemoryInfo"));
         }, 1500);
         document.querySelector("#refresh").addEventListener("click", async () => {
 			savedBuffers.length = 0;
