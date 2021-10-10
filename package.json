@@ -5,10 +5,12 @@
   "main": "main.js",
   "scripts": {
     "start-electron-latest": "node node_modules/electron/cli.js .",
-    "start-electron-13": "node node_modules/electron-13/cli.js ."
+    "start-electron-13": "node node_modules/electron-13/cli.js .",
+    "start-electron-11": "node node_modules/electron-11/cli.js ."
   },
   "dependencies": {
     "electron-13": "npm:electron@^13.5.1",
+    "electron-11": "npm:electron@^11.5.0",
     "electron": "latest"
   }
 }
