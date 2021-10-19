@@ -8,56 +8,61 @@
       const savedAudioBuffers = [];
       const largestBufferSize = 2145386496;
       const ipcRenderer = require("electron").ipcRenderer;
-	  var mainBufferSize = 0;
-	  var resultElement, undecodedAudio, audioContext, decodedAudioSize;
+		  var mainBufferSize = 0;
+		  var resultElement, undecodedAudio, audioContext, decodedAudioSize;
       window.onload = () => {
-		var resultElement = document.querySelector("#result");
-		const calcRenderMemoryFilled = () => {
-			document.querySelector("#size").innerText = Math.round( ( (largestBufferSize * savedBuffers.length) + ((decodedAudioSize || 0) * savedAudioBuffers.length) + (undecodedAudio ? undecodedAudio.byteLength : 0) )/1024 ).toLocaleString()+" kB";
-			resultElement.innerText = "ok";
-		}
-        document.querySelector("#fillMemory").addEventListener("click", (e) => {
-			e.target.setAttribute("disabled", "");	
-			resultElement.innerText = "waiting...";
-			setImmediate(() => {
-				try {
-					savedBuffers.push(Buffer.alloc(largestBufferSize, 1));
-					calcRenderMemoryFilled();					
-				} catch(e) {
-					resultElement.innerText = e.name+": "+e.message;
-					//console.log("error", e);
+				var resultElement = document.querySelector("#result");
+				const calcRenderMemoryFilled = () => {
+					document.querySelector("#size").innerText = Math.round( ( (largestBufferSize * savedBuffers.length) + ((decodedAudioSize || 0) * savedAudioBuffers.length) + (undecodedAudio ? undecodedAudio.byteLength : 0) )/1024 ).toLocaleString()+" kB";
+					resultElement.innerText = "ok";
 				}
-				e.target.removeAttribute("disabled");
-			});
+	      document.querySelector("#fillMemory").addEventListener("click", (e) => {
+					e.target.setAttribute("disabled", "");	
+					resultElement.innerText = "waiting...";
+					setImmediate(() => {
+						try {
+							savedBuffers.push(Buffer.alloc(largestBufferSize, 1));
+							calcRenderMemoryFilled();					
+						} catch(e) {
+							resultElement.innerText = e.name+": "+e.message;
+							//console.log("error", e);
+						}
+						e.target.removeAttribute("disabled");
+					});
         });
         document.querySelector("#fillMemoryAudio").addEventListener("click", async (e) => {
-			e.target.setAttribute("disabled", "");	
-			resultElement.innerText = "waiting...";
-			if (!audioContext) {
-				//init audio context & fetch sound file into array buffer
-				audioContext = new AudioContext({sampleRate: 96000});
-				undecodedAudio = await (await fetch("long.mp4")).arrayBuffer();	
-			}
-			try {
-				savedAudioBuffers.push(await audioContext.decodeAudioData(undecodedAudio.slice(0)));
-				decodedAudioSize = decodedAudioSize || savedAudioBuffers[0].length * savedAudioBuffers[0].numberOfChannels * 4;
-				calcRenderMemoryFilled();
-			} catch(e) {
-				resultElement.innerText = e.name+": "+e.message;
-				//console.log("error", e);
-			}
-			e.target.removeAttribute("disabled");
+					e.target.setAttribute("disabled", "");	
+					resultElement.innerText = "waiting...";
+					if (!undecodedAudio) {
+						//init audio context & fetch sound file into array buffer
+						audioContext = new AudioContext({sampleRate: 96000});
+						try {
+							undecodedAudio = await (await fetch("long.mp4")).arrayBuffer();
+						} catch(e) {
+							resultElement.innerText = e.name+": "+e.message;
+							return;
+						}
+					}
+					try {
+						savedAudioBuffers.push(await audioContext.decodeAudioData(undecodedAudio.slice(0)));
+						decodedAudioSize = decodedAudioSize || savedAudioBuffers[0].length * savedAudioBuffers[0].numberOfChannels * 4;
+						calcRenderMemoryFilled();
+					} catch(e) {
+						resultElement.innerText = e.name+": "+e.message;
+						//console.log("error", e);
+					}
+					e.target.removeAttribute("disabled");
         });
         document.querySelector("#mainFillMemory").addEventListener("click", async (e) => {
-			e.target.setAttribute("disabled", "");	
-			resultElement.innerText = "waiting...";
-			const result = await ipcRenderer.invoke("mainFillMemory");
-			resultElement.innerText = result;
-			if (result === "ok") {
-				mainBufferSize += largestBufferSize;
-				document.querySelector("#mainSize").innerText = (mainBufferSize/1024).toLocaleString()+" kB";
-			}
-			e.target.removeAttribute("disabled");
+					e.target.setAttribute("disabled", "");	
+					resultElement.innerText = "waiting...";
+					const result = await ipcRenderer.invoke("mainFillMemory");
+					resultElement.innerText = result;
+					if (result === "ok") {
+						mainBufferSize += largestBufferSize;
+						document.querySelector("#mainSize").innerText = (mainBufferSize/1024).toLocaleString()+" kB";
+					}
+					e.target.removeAttribute("disabled");
         });
         const displayMemoryInfo = (whichID, infoObject) => {
           let displayString = "";
@@ -67,20 +72,20 @@
           document.getElementById(whichID).innerText = displayString;        
         }
         setInterval(async () => {
-			displayMemoryInfo("memoryInfo", await process.getProcessMemoryInfo());
-			if (ipcRenderer.invoke) displayMemoryInfo("mainMemoryInfo", await ipcRenderer.invoke("getMainProcessMemoryInfo"));
+					displayMemoryInfo("memoryInfo", await process.getProcessMemoryInfo());
+					if (ipcRenderer.invoke) displayMemoryInfo("mainMemoryInfo", await ipcRenderer.invoke("getMainProcessMemoryInfo"));
         }, 1500);
         document.querySelector("#refresh").addEventListener("click", async () => {
-			savedAudioBuffers.length = savedBuffers.length = 0;
-			if (ipcRenderer.invoke) await ipcRenderer.invoke("clearMainProcessMemory");
-			location.reload();
-		});
+					savedAudioBuffers.length = savedBuffers.length = 0;
+					if (ipcRenderer.invoke) await ipcRenderer.invoke("clearMainProcessMemory");
+					location.reload();
+				});
         document.querySelector("#versions").innerText = "electron: "+process.versions.electron+", abi: "+process.versions.modules+", node: "+process.versions.node+", chromium: "+process.versions.chrome;
-		if (parseInt(process.versions.electron) < 6) document.querySelector("#fillMemoryAudio").innerHTML = document.querySelector("#fillMemoryAudio").innerHTML.replace("2.7", "1.3"); //earlier Chrome had lower res audio context
+				if (parseInt(process.versions.electron) < 6) document.querySelector("#fillMemoryAudio").innerHTML = document.querySelector("#fillMemoryAudio").innerHTML.replace("2.7", "1.3"); //earlier Chrome had lower res audio context
       };
     </script>
   </head>
-  <body>
+  <body style="background-color: white;">
     <b id="versions"></b>
 	<br><br>
     <button id="fillMemory">fill <b>render</b> process RAM with 2GB via Buffer.alloc()</button> <button id="fillMemoryAudio">fill <b>render</b> process RAM with 2.7GB via decodeAudioData()</button>
