@@ -1,7 +1,7 @@
 # electron-memory-tests
 compare process memory limits between different versions of electron
 
-`npm install` will install electron@latest, electron@^13.5.1, and electron@^11.5.0
+`npm install` will install electron@latest, electron@^13.6.9, and electron@^11.5.0
 
 `npm run start-electron-latest` to test @latest
 
