@@ -5,6 +5,7 @@
   "main": "main.js",
   "scripts": {
     "start-electron-latest": "node node_modules/electron/cli.js .",
+    "start-electron-nightly": "node node_modules/electron-nightly/cli.js .",
     "start-electron-11": "node node_modules/electron-11/cli.js .",
     "start-electron-13": "node node_modules/electron-13/cli.js .",
     "start-electron-14": "node node_modules/electron-14/cli.js .",
@@ -21,6 +22,7 @@
     "electron-16": "npm:electron@^16.0.0",
     "electron-17": "npm:electron@^17.0.0",
     "electron-18": "npm:electron@^18.0.0",
-    "electron": "latest"
+    "electron": "latest",
+    "electron-nightly": "latest"
   }
 }
