@@ -5,12 +5,22 @@
   "main": "main.js",
   "scripts": {
     "start-electron-latest": "node node_modules/electron/cli.js .",
+    "start-electron-11": "node node_modules/electron-11/cli.js .",
     "start-electron-13": "node node_modules/electron-13/cli.js .",
-    "start-electron-11": "node node_modules/electron-11/cli.js ."
+    "start-electron-14": "node node_modules/electron-14/cli.js .",
+    "start-electron-15": "node node_modules/electron-15/cli.js .",
+    "start-electron-16": "node node_modules/electron-16/cli.js .",
+    "start-electron-17": "node node_modules/electron-17/cli.js .",
+    "start-electron-18": "node node_modules/electron-18/cli.js ."
   },
   "dependencies": {
-    "electron-13": "npm:electron@^13.5.1",
     "electron-11": "npm:electron@^11.5.0",
+    "electron-13": "npm:electron@^13.5.1",
+    "electron-14": "npm:electron@^14.0.0",
+    "electron-15": "npm:electron@^15.0.0",
+    "electron-16": "npm:electron@^16.0.0",
+    "electron-17": "npm:electron@^17.0.0",
+    "electron-18": "npm:electron@^18.0.0",
     "electron": "latest"
   }
 }
